@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat System</title>
+  <link rel="stylesheet" href="{% static 'chat/css/index.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-blue-50">
+  <div class="chat-container">
+    <header class="bg-blue-600 text-white p-4 text-center">
+      <h1 class="text-2xl">AI chatbot</h1>
+    </header>
+    <main class="flex flex-col flex-grow p-4">
+      <div id="chat-history" class="chat-history mb-4">
+        <!-- Chat history will be dynamically inserted here -->
+      </div>
+      <div class="input-container">
+        <form method="POST" id="chat-form" class="flex w-full">
+          {% csrf_token %}
+          <input id="chat-input" type="text" class="flex-grow p-2 border border-blue-300 rounded-l" placeholder="Type your message here...">
+          <button type="submit" class="bg-blue-600 text-white p-2 rounded-r">Send</button>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
