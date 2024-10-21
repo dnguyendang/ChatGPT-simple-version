@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="{% static 'chat/css/index.css' %}">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-blue-50">
   <div class="chat-container">
     <header class="bg-blue-600 text-white p-4 text-center">
@@ -20,11 +22,78 @@
       <div class="input-container">
         <form method="POST" id="chat-form" class="flex w-full">
           {% csrf_token %}
-          <input id="chat-input" type="text" class="flex-grow p-2 border border-blue-300 rounded-l" placeholder="Type your message here...">
+          <input id="chat-input" type="text" class="flex-grow p-2 border border-blue-300 rounded-l"
+            placeholder="Type your message here...">
           <button type="submit" class="bg-blue-600 text-white p-2 rounded-r">Send</button>
         </form>
       </div>
     </main>
   </div>
+
+  <script>
+    // select chat form, input field, chat history display elements
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatHistory = document.getElementById('chat-history');
+
+    // add an event listener for the form's submit event
+    chatForm.addEventListener('submit', function (event) {
+      // prevent the form from submitting the tranditional way (page reload)
+      event.preventDefault();
+
+      // get the user input and trim anny extra spaces
+      const message = chatInput.value.trim();
+
+      // check if the input is not empty
+      if (message) {
+        // create a new div to wrap the user's message and assign appropriate classes
+        const messageWrapper = document.createElement('div');
+        messageWrapper.classList.add('chat-message', 'user'); // Add classes to style it as a user message
+
+        // create a div to hold the actual message content and set the user's message as its text
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'user'); // Add classes to style the message content
+        messageElement.textContent = message;
+
+        // append the message content to the wrapper and add the wrapper to the chat history
+        messageWrapper.appendChild(messageElement);
+        chatHistory.appendChild(messageWrapper);
+
+        // clear the input field after the message is sent
+        chatInput.value = '';
+
+        fetch('response', {
+          method: 'POST', // sending the message as a POST request
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // form data type
+          body: new URLSearchParams({
+            'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value, // CSRF token for security
+            'message': message // message sent in the request body
+          })
+        })
+          .then(response => response.json())
+          .then(data => {
+            // retrieve the AI's response from the server response data
+            const response = data.response;
+
+            // create a new div to wrap the AI's message and assign appropriate classes
+            const messageWrapper2 = document.createElement('div');
+            messageWrapper2.classList.add('chat-message', 'ai');
+
+            // create a div to hold the AI's message content and set the AI's response as its text
+            const messageElement2 = document.createElement('div');
+            messageElement2.classList.add('message', 'ai');
+            messageElement2.textContent = response;
+
+            // append the AI's message content to the wrapper and add the wrapper to the chat history
+            messageWrapper2.appendChild(messageElement2);
+            chatHistory.appendChild(messageWrapper2);
+          })
+
+        // scroll the chat history to the bottom to ensure the latest message is visible
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+    })
+  </script>
 </body>
+
 </html>
